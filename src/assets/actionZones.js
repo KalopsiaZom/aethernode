@@ -1,5 +1,3 @@
-// actionZones.js
-
 export const actionZones = [
   {
     id: "house",

@@ -3,6 +3,7 @@ import { actionZones } from "../assets/actionZones";
 import { getUpdatedStats } from "../assets/actionClick";
 import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
+import Inventory from "../Inventory";
 
 const MAP_WIDTH = 3000;
 const MAP_HEIGHT = 2250;
@@ -31,7 +32,7 @@ function isColliding(rect1, rect2) {
 
 export default function ScrollableMap() {
   const containerRef = useRef(null);
-  const { stats, updateStat } = useGame();
+  const { stats, updateStat, useItem, dropItem } = useGame();
 
   /*const [playerPos, setPlayerPos] = useState({
     x: MAP_WIDTH / 2 - PLAYER_SIZE / 2,
@@ -45,6 +46,7 @@ export default function ScrollableMap() {
   const [hoveredAction, setHoveredAction] = useState(null);
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
   const [currentMap, setCurrentMap] = useState("/map1.png");
 
   const keysPressed = useRef({});
@@ -103,6 +105,9 @@ export default function ScrollableMap() {
       if (e.key.toLowerCase() === "m") {
         setShowFloorMenu(true);
       }
+      if (e.key.toLowerCase() === "b") {
+        setShowInventory((prev) => !prev);
+      }
       e.preventDefault();
     }
     function onKeyUp(e) {
@@ -152,6 +157,17 @@ export default function ScrollableMap() {
         />
       )}
 
+      {showInventory && (
+        <Inventory
+          items={stats.items}
+          onUseItem={useItem}
+          onDropItem={dropItem}
+          onClose={() => setShowInventory(false)}
+        />
+      )}
+
+
+
       <div
         style={{
           display: "flex",
@@ -187,7 +203,7 @@ export default function ScrollableMap() {
           <div>Items: {stats.items.length ? stats.items.join(", ") : "None"}</div>
         </div>
 
-        {/* Game viewport in center */}
+        {/* Game in center */}
         <div
           ref={containerRef}
           style={{

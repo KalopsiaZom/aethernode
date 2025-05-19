@@ -11,7 +11,14 @@ export default function InventoryUI() {
     "Sandwich": require("./img/bg1.jpg"),
     "Book": require("./img/bg2.jpg"),
     "Protein Shake": require("./img/bg3.jpg"),
-};
+  };
+
+    const itemDescriptions = {
+    "Sandwich": "wow sandwich giv meal 20 points.",
+    "Book": "smart",
+    "Protein Shake": "meal & happi",
+    };
+
 
 
   const handleClick = (item) => {
@@ -52,14 +59,26 @@ export default function InventoryUI() {
         {selectedItem && (
         <div style={styles.itemDetail}>
             <img
-            src={itemImages[selectedItem]}
-            alt={selectedItem}
-            style={styles.detailImage}
+                src={itemImages[selectedItem]}
+                alt={selectedItem}
+                style={styles.detailImage}
             />
             <h3>{selectedItem}</h3>
-            <p>This is a description of {selectedItem}. You can use or drop this item.</p>
-            <button style={styles.useButton} onClick={() => handleUseItem(selectedItem)}>Use</button>
-            <button style={styles.dropButton} onClick={() => handleDropItem(selectedItem)}>Drop</button>
+            <p>{itemDescriptions[selectedItem] || "No description available."}</p>
+            <button
+                style={styles.useButton}
+                onClick={() => handleUseItem(selectedItem)}
+                disabled={!stats.items.find((i) => i.name === selectedItem)}
+            >
+            Use
+            </button>
+            <button
+                style={styles.dropButton}
+                onClick={() => handleDropItem(selectedItem)}
+                disabled={!stats.items.find((i) => i.name === selectedItem)}
+            >
+            Drop
+            </button>
         </div>
         )}
 

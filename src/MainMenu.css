@@ -28,4 +28,15 @@
   animation-duration: 6s;
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.fade-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: black;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+  /* place the fade overlay above background but below UI */
+  z-index: 10;
 }

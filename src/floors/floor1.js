@@ -195,6 +195,8 @@ export default function ScrollableMap() {
             justifyContent: "center",
           }}
         >
+          <div>Note: Press M for change floor || Press B for Inventory</div>
+          <br></br>
           <div>Meal: {stats.meal}</div>
           <div>Sleep: {stats.sleep}</div>
           <div>Happiness: {stats.happiness}</div>

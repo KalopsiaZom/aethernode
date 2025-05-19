@@ -202,7 +202,6 @@ export default function ScrollableMap() {
           <div>Happiness: {stats.happiness}</div>
           <div>Cleanliness: {stats.cleanliness}</div>
           <div>Money: ${stats.money}</div>
-          <div>Items: {stats.items.length ? stats.items.join(", ") : "None"}</div>
         </div>
 
         {/* Game in center */}

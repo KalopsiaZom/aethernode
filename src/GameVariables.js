@@ -25,12 +25,24 @@ export function GameProvider({ children }) {
   };
 
   // Add an item
-  const addItem = (item) => {
-    setStats((prev) => ({ ...prev, items: [...prev.items, item] }));
+  const addItem = (itemName) => {
+    setStats((prev) => {
+      const items = [...prev.items];
+      const index = items.findIndex((i) => i.name === itemName);
+
+      if (index !== -1) {
+        items[index].count += 1;
+      } else {
+        items.push({ name: itemName, count: 1 });
+      }
+
+      return { ...prev, items };
+    });
   };
 
+
   // Use an item and apply its effects
-  const handleuseItem = (item) => {
+  const handleUseItem = (itemName) => {
     const itemEffects = {
       "Sandwich": { meal: +20 },
       "Book": { happiness: +10 },
@@ -38,37 +50,38 @@ export function GameProvider({ children }) {
     };
 
     const updatedStats = { ...stats };
-    const effect = itemEffects[item];
+    const effect = itemEffects[itemName];
 
+    // Apply stat effects
     if (effect) {
       for (const [key, value] of Object.entries(effect)) {
         updatedStats[key] = Math.max(0, Math.min(100, (updatedStats[key] || 0) + value));
       }
     }
 
-    // Remove one instance of the used item
-    const index = updatedStats.items.findIndex((i) => i === item);
-    if (index !== -1) {
-      updatedStats.items.splice(index, 1);
-    }
+    // Reduce item count
+    updatedStats.items = updatedStats.items
+      .map((i) => i.name === itemName ? { ...i, count: i.count - 1 } : i)
+      .filter((i) => i.count > 0);
 
     setStats(updatedStats);
   };
 
+
   // Drop an item (remove it from inventory)
-  const handledropItem = (item) => {
+  const handleDropItem = (itemName) => {
     const updatedStats = { ...stats };
-    const index = updatedStats.items.findIndex((i) => i === item);
-    if (index !== -1) {
-      updatedStats.items.splice(index, 1);
-    }
+
+    updatedStats.items = updatedStats.items
+      .map((i) => i.name === itemName ? { ...i, count: i.count - 1 } : i)
+      .filter((i) => i.count > 0);
 
     setStats(updatedStats);
   };
 
   return (
     <GameVariables.Provider
-      value={{ stats, updateStat, addItem, handleAction, handleuseItem, handledropItem }}
+      value={{ stats, updateStat, addItem, handleAction, handleUseItem, handleDropItem }}
     >
       {children}
     </GameVariables.Provider>

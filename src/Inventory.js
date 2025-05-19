@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGame } from "./GameVariables";
 //import selectedItemImg from "./img/bg1.jpg";
 
 export default function InventoryUI() {
   const { stats, handleUseItem, handleDropItem } = useGame();
   const [selectedItem, setSelectedItem] = useState(null);
+
 
   const itemImages = {
     "Sandwich": require("./img/bg1.jpg"),
@@ -17,43 +18,51 @@ export default function InventoryUI() {
     setSelectedItem(item);
   };
 
+  useEffect(() => {
+    if (selectedItem && !stats.items.some((item) => item.name === selectedItem)) {
+        setSelectedItem(null);
+    }
+  }, [stats.items, selectedItem]);
+
+
   return (
     <div style={styles.overlay}>
       <div style={styles.inventoryContainer}>
         <div style={styles.gridContainer}>
-          {stats.items.length === 0 ? (
-            <p style={styles.emptyText}>Inventory is empty.</p>
-          ) : (
-            stats.items.map((item, index) => (
-              <div
-                key={index}
-                style={styles.itemBox}
-                onClick={() => handleClick(item)}
-              >
-                <img
-                    src={itemImages[item]}
-                    alt={item}
-                    style={styles.itemImage}
-                />
-                <span style={styles.itemCount}>x1</span>
-              </div>
-            ))
-          )}
+        {stats.items.length === 0 ? (
+        <p style={styles.emptyText}>Inventory is empty.</p>
+        ) : (
+        stats.items.map((itemObj, index) => (
+            <div
+            key={index}
+            style={styles.itemBox}
+            onClick={() => handleClick(itemObj.name)}
+            >
+            <img
+                src={itemImages[itemObj.name]}
+                alt={itemObj.name}
+                style={styles.itemImage}
+            />
+            <span style={styles.itemCount}>x{itemObj.count}</span>
+            </div>
+        ))
+        )}
         </div>
 
         {selectedItem && (
-          <div style={styles.itemDetail}>
+        <div style={styles.itemDetail}>
             <img
-                src={itemImages[selectedItem]}
-                alt={selectedItem}
-                style={styles.detailImage}
+            src={itemImages[selectedItem]}
+            alt={selectedItem}
+            style={styles.detailImage}
             />
             <h3>{selectedItem}</h3>
             <p>This is a description of {selectedItem}. You can use or drop this item.</p>
             <button style={styles.useButton} onClick={() => handleUseItem(selectedItem)}>Use</button>
             <button style={styles.dropButton} onClick={() => handleDropItem(selectedItem)}>Drop</button>
-          </div>
+        </div>
         )}
+
       </div>
     </div>
   );

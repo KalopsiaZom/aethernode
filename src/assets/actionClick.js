@@ -61,8 +61,13 @@ export function getUpdatedStats(actionId, oldStats) {
   }
 
   // Add item if applicable
-  if (action.item && !newStats.items.includes(action.item)) {
-    newStats.items = [...newStats.items, action.item];
+  if (action.item) {
+    const existingItem = newStats.items.find((i) => i.name === action.item);
+    if (existingItem) {
+      existingItem.count += 1;
+    } else {
+      newStats.items.push({ name: action.item, count: 1 });
+    }
   }
 
   return newStats;

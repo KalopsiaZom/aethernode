@@ -1,0 +1,31 @@
+@keyframes scrollTopRight {
+  from {
+    transform: scale(1.1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.1) translate(5%, -5%);
+  }
+}
+
+@keyframes scrollBottomLeft {
+  from {
+    transform: scale(1.1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.1) translate(-5%, 5%);
+  }
+}
+
+.scroll-top-right {
+  animation-name: scrollTopRight;
+}
+
+.scroll-bottom-left {
+  animation-name: scrollBottomLeft;
+}
+
+.animate-background {
+  animation-duration: 6s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+}

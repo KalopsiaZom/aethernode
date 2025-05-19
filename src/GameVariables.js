@@ -41,7 +41,7 @@ export function GameProvider({ children }) {
   };
 
 
-  // Use an item and apply its effects
+  // items here
   const handleUseItem = (itemName) => {
     const itemEffects = {
       "Sandwich": { meal: +20 },
@@ -68,7 +68,7 @@ export function GameProvider({ children }) {
   };
 
 
-  // Drop an item (remove it from inventory)
+  // Drop item
   const handleDropItem = (itemName) => {
     const updatedStats = { ...stats };
 

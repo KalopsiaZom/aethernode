@@ -3,9 +3,9 @@ import React from "react";
 import { useNavigate } from 'react-router-dom';
 
 const floors = [
-  { id: "floor1", name: "Floor 1", mapUrl: "/map1.png" },
-  { id: "floor2", name: "Floor 2", mapUrl: "/map2.png" },
-  { id: "floor3", name: "Floor 3", mapUrl: "/map3.png" },
+  { id: "floor1", name: "Floor 1", mapUrl: "/maps/map1.png" },
+  { id: "floor2", name: "Floor 2", mapUrl: "/maps/map2.png" },
+  { id: "floor3", name: "Floor 3", mapUrl: "/maps/map3.png" },
 ];
 
 export default function FloorMenu({ onSelect, onClose }) {

@@ -47,7 +47,7 @@ export default function ScrollableMap() {
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
-  const [currentMap, setCurrentMap] = useState("/map1.png");
+  const [currentMap, setCurrentMap] = useState("/maps/map1.png");
 
   const keysPressed = useRef({});
 
@@ -103,7 +103,7 @@ export default function ScrollableMap() {
     function onKeyDown(e) {
       keysPressed.current[e.key.toLowerCase()] = true;
       if (e.key.toLowerCase() === "m") {
-        setShowFloorMenu(true);
+        setShowFloorMenu((prev) => !prev);
       }
       if (e.key.toLowerCase() === "b") {
         setShowInventory((prev) => !prev);

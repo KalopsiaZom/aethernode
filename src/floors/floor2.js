@@ -3,13 +3,17 @@ import { actionZones } from "../assets/actionZones";
 import { getUpdatedStats } from "../assets/actionClick";
 import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
+import Inventory from "../Inventory";
 
-const MAP_WIDTH = 3000;
-const MAP_HEIGHT = 2250;
+const MAP_WIDTH = 2100;
+const MAP_HEIGHT = 1400;
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 600;
 const PLAYER_SIZE = 40;
 const MOVE_SPEED = 3;
+
+const SPAWN_POINT = { x: 1600, y: 1500 }; // spawn
+
 
 const walls = [
   { x: 400, y: 300, width: 200, height: 40 },
@@ -28,16 +32,22 @@ function isColliding(rect1, rect2) {
 
 export default function ScrollableMap() {
   const containerRef = useRef(null);
-  const { stats, updateStat } = useGame();
+  const { stats, updateStat, useItem, dropItem } = useGame();
 
-  const [playerPos, setPlayerPos] = useState({
+  /*const [playerPos, setPlayerPos] = useState({
     x: MAP_WIDTH / 2 - PLAYER_SIZE / 2,
     y: MAP_HEIGHT / 2 - PLAYER_SIZE / 2,
+  });*/
+  const [playerPos, setPlayerPos] = useState({
+    x: SPAWN_POINT.x,
+    y: SPAWN_POINT.y,
   });
+
   const [hoveredAction, setHoveredAction] = useState(null);
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
-  const [currentMap, setCurrentMap] = useState("/map1.png");
+  const [showInventory, setShowInventory] = useState(false);
+  const [currentMap, setCurrentMap] = useState("/maps/map2.png");
 
   const keysPressed = useRef({});
 
@@ -93,7 +103,10 @@ export default function ScrollableMap() {
     function onKeyDown(e) {
       keysPressed.current[e.key.toLowerCase()] = true;
       if (e.key.toLowerCase() === "m") {
-        setShowFloorMenu(true);
+        setShowFloorMenu((prev) => !prev);
+      }
+      if (e.key.toLowerCase() === "b") {
+        setShowInventory((prev) => !prev);
       }
       e.preventDefault();
     }
@@ -144,6 +157,17 @@ export default function ScrollableMap() {
         />
       )}
 
+      {showInventory && (
+        <Inventory
+          items={stats.items}
+          onUseItem={useItem}
+          onDropItem={dropItem}
+          onClose={() => setShowInventory(false)}
+        />
+      )}
+
+
+
       <div
         style={{
           display: "flex",
@@ -171,15 +195,16 @@ export default function ScrollableMap() {
             justifyContent: "center",
           }}
         >
+          <div>Note: Press M for change floor || Press B for Inventory</div>
+          <br></br>
           <div>Meal: {stats.meal}</div>
           <div>Sleep: {stats.sleep}</div>
           <div>Happiness: {stats.happiness}</div>
           <div>Cleanliness: {stats.cleanliness}</div>
           <div>Money: ${stats.money}</div>
-          <div>Items: {stats.items.length ? stats.items.join(", ") : "None"}</div>
         </div>
 
-        {/* Game viewport in center */}
+        {/* Game in center */}
         <div
           ref={containerRef}
           style={{

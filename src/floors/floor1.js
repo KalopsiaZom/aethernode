@@ -25,7 +25,7 @@ const MAP_HEIGHT = 2250;
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 600;
 const PLAYER_SIZE = 40;
-const MOVE_SPEED = 3;
+const MOVE_SPEED = 6;
 
 const SPAWN_POINT = { x: 1600, y: 1500 };
 

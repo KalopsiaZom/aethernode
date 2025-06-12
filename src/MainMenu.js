@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CharacterSelection from "./CharacterSelection";
+import LoginForm from "./LoginForm";
+import RegisterForm from "./RegisterForm";
 import "./MainMenu.css";
 import bg1 from "./img/bg1.jpg";
 import bg2 from "./img/bg2.jpg";
 import bg3 from "./img/bg3.jpg";
+import { auth, db } from "./firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import { useGame } from "./GameVariables";
 
 const images = [bg1, bg2, bg3];
 const directions = ["scroll-top-right", "scroll-bottom-left"];
@@ -27,31 +33,31 @@ const screenContents = {
   "Continue Game": (
     <>
       <h2 className="text-2xl font-bold">Continue Game</h2>
-      <p>lorem</p>
+      <p>Resume your saved progress.</p>
     </>
   ),
   Load: (
     <>
       <h2 className="text-2xl font-bold">Load</h2>
-      <p>lorem</p>
+      <p>Load a previous game file.</p>
     </>
   ),
   Options: (
     <>
       <h2 className="text-2xl font-bold">Options</h2>
-      <p>lorem</p>
+      <p>Adjust your preferences and settings.</p>
     </>
   ),
   Credits: (
     <>
       <h2 className="text-2xl font-bold">Credits</h2>
-      <p>evan</p>
+      <p>Developed by Evan.</p>
     </>
   ),
   "Exit Game": (
     <>
       <h2 className="text-2xl font-bold">Exit Game</h2>
-      <p>Tlorem</p>
+      <p>Thanks for playing!</p>
     </>
   ),
 };
@@ -61,8 +67,10 @@ export default function MainMenu() {
   const [dirIndex, setDirIndex] = useState(0);
   const [activeScreen, setActiveScreen] = useState("menu");
   const [fadeOverlayOpacity, setFadeOverlayOpacity] = useState(0);
-  const [step, setStep] = useState("menu"); // "menu" | "char-select"
+  const [step, setStep] = useState("menu");
+  const [authScreen, setAuthScreen] = useState("login");
 
+  const { user, setUser, setStats, loading } = useGame();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,33 +89,61 @@ export default function MainMenu() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleNewGame = () => {
-    setStep("char-select");
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
   };
 
-  const handleCharacterSelected = () => {
+  const handleNewGame = async () => {
+    if (!user) {
+      alert("Please log in to start a new game.");
+      return;
+    }
+
+    try {
+      const defaultStats = {
+        meal: 100,
+        sleep: 100,
+        happiness: 100,
+        cleanliness: 100,
+        money: 100,
+        items: [],
+        playerX: 1600,
+        playerY: 1500,
+      };
+
+      const ref = doc(db, "saves", user.uid);
+      await setDoc(ref, defaultStats); // overwrite existing save
+      setStats(defaultStats); // update context
+      setStep("char-select"); // go to character selection
+    } catch (error) {
+      console.error("Error creating new game:", error);
+      alert("Failed to create new game.");
+    }
+  };
+
+  const handleCharacterSelected = () => navigate("/floor1");
+
+  const handleContinueGame = () => {
+    if (!user) {
+      alert("Please log in first.");
+      return;
+    }
+    if (loading) {
+      alert("Loading save data... Please wait.");
+      return;
+    }
     navigate("/floor1");
   };
 
-  const handleContinueGame = () => {
-    setActiveScreen("Continue Game");
-  };
-
-  const handleLoad = () => {
-    setActiveScreen("Load");
-  };
-
-  const handleOptions = () => {
-    setActiveScreen("Options");
-  };
-
-  const handleCredits = () => {
-    setActiveScreen("Credits");
-  };
-
-  const handleExitGame = () => {
-    setActiveScreen("Exit Game");
-  };
+  const handleLoad = () => setActiveScreen("Load");
+  const handleOptions = () => setActiveScreen("Options");
+  const handleCredits = () => setActiveScreen("Credits");
+  const handleExitGame = () => setActiveScreen("Exit Game");
 
   const handlers = {
     "New Game": handleNewGame,
@@ -126,10 +162,17 @@ export default function MainMenu() {
           key={option}
           onClick={handlers[option]}
           className="hover:bg-white hover:text-black px-4 py-2 rounded transition-all"
+          disabled={loading && option === "Continue Game"}
         >
           {option}
         </button>
       ))}
+      <button
+        onClick={handleLogout}
+        className="mt-6 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-all"
+      >
+        Logout
+      </button>
     </div>
   );
 
@@ -145,9 +188,16 @@ export default function MainMenu() {
     </div>
   );
 
+  if (!user) {
+    return authScreen === "login" ? (
+      <LoginForm onSwitchToRegister={() => setAuthScreen("register")} />
+    ) : (
+      <RegisterForm onBack={() => setAuthScreen("login")} />
+    );
+  }
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Background Layer */}
       <div className="absolute inset-0 z-0">
         <img
           src={images[bgIndex]}
@@ -157,7 +207,6 @@ export default function MainMenu() {
         <div className="fade-overlay" style={{ opacity: fadeOverlayOpacity }} />
       </div>
 
-      {/* UI Layer */}
       {step === "char-select" ? (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black bg-opacity-80">
           <CharacterSelection

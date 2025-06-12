@@ -4,17 +4,17 @@ import { getUpdatedStats } from "../assets/actionClick";
 import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
 import Inventory from "../Inventory";
+import { useNavigate } from "react-router-dom";
 
+// Character animations
 import char1_idle from "../assets/sprite/char1/idle.gif";
 import char1_up from "../assets/sprite/char1/up.gif";
 import char1_down from "../assets/sprite/char1/down.gif";
 import char1_right from "../assets/sprite/char1/right.gif";
-
 import char2_idle from "../assets/sprite/char2/idle.gif";
 import char2_up from "../assets/sprite/char2/up.gif";
 import char2_down from "../assets/sprite/char2/down.gif";
 import char2_right from "../assets/sprite/char2/right.gif";
-
 import char3_idle from "../assets/sprite/char3/idle.gif";
 import char3_up from "../assets/sprite/char3/up.gif";
 import char3_down from "../assets/sprite/char3/down.gif";
@@ -45,28 +45,22 @@ function isColliding(rect1, rect2) {
 }
 
 export default function ScrollableMap() {
+  const navigate = useNavigate();
   const containerRef = useRef(null);
-  const { stats, updateStat, useItem, dropItem, selectedCharacter } = useGame();
+  const {
+    stats,
+    updateStat,
+    useItem,
+    dropItem,
+    selectedCharacter,
+    saveProgressToFirebase,
+    firebaseUser,
+  } = useGame();
 
   const spriteMap = {
-    char1: {
-      idle: char1_idle,
-      up: char1_up,
-      down: char1_down,
-      right: char1_right,
-    },
-    char2: {
-      idle: char2_idle,
-      up: char2_up,
-      down: char2_down,
-      right: char2_right,
-    },
-    char3: {
-      idle: char3_idle,
-      up: char3_up,
-      down: char3_down,
-      right: char3_right,
-    },
+    char1: { idle: char1_idle, up: char1_up, down: char1_down, right: char1_right },
+    char2: { idle: char2_idle, up: char2_up, down: char2_down, right: char2_right },
+    char3: { idle: char3_idle, up: char3_up, down: char3_down, right: char3_right },
   };
 
   const [playerPos, setPlayerPos] = useState({ x: SPAWN_POINT.x, y: SPAWN_POINT.y });
@@ -76,6 +70,8 @@ export default function ScrollableMap() {
   const [showInventory, setShowInventory] = useState(false);
   const [currentMap, setCurrentMap] = useState("/maps/map1.png");
   const [direction, setDirection] = useState("idle");
+  const [syncMessage, setSyncMessage] = useState("");
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const keysPressed = useRef({});
 
@@ -130,7 +126,6 @@ export default function ScrollableMap() {
     }
 
     movePlayer();
-
     return () => {};
   }, []);
 
@@ -141,11 +136,13 @@ export default function ScrollableMap() {
       if (e.key.toLowerCase() === "b") setShowInventory((prev) => !prev);
       e.preventDefault();
     }
+
     function onKeyUp(e) {
       keysPressed.current[e.key.toLowerCase()] = false;
       if (!Object.values(keysPressed.current).includes(true)) setDirection("idle");
       e.preventDefault();
     }
+
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     return () => {
@@ -159,15 +156,79 @@ export default function ScrollableMap() {
     if (!container) return;
     let scrollLeft = playerPos.x + PLAYER_SIZE / 2 - VIEWPORT_WIDTH / 2;
     let scrollTop = playerPos.y + PLAYER_SIZE / 2 - VIEWPORT_HEIGHT / 2;
-    scrollLeft = Math.max(0, Math.min(scrollLeft, MAP_WIDTH - VIEWPORT_WIDTH));
-    scrollTop = Math.max(0, Math.min(scrollTop, MAP_HEIGHT - VIEWPORT_HEIGHT));
-    container.scrollLeft = scrollLeft;
-    container.scrollTop = scrollTop;
+    container.scrollLeft = Math.max(0, Math.min(scrollLeft, MAP_WIDTH - VIEWPORT_WIDTH));
+    container.scrollTop = Math.max(0, Math.min(scrollTop, MAP_HEIGHT - VIEWPORT_HEIGHT));
   }, [playerPos]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (firebaseUser) {
+        saveProgressToFirebase(playerPos).then(() => {
+          console.log("Auto-saved");
+        });
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [firebaseUser, playerPos]);
 
   function handleActionClick(actionId) {
     const newStats = getUpdatedStats(actionId, stats);
     Object.entries(newStats).forEach(([key, value]) => updateStat(key, value));
+  }
+
+  async function handleSave() {
+    if (firebaseUser) {
+      await saveProgressToFirebase(playerPos);
+      setSyncMessage("Progress saved!");
+      setTimeout(() => setSyncMessage(""), 2000);
+    }
+  }
+
+  const handleExitConfirm = async () => {
+    setShowExitModal(false);
+    await saveProgressToFirebase(playerPos);
+    navigate("/");
+  };
+
+const handleExitCancel = () => {
+  setShowExitModal(false);
+};
+
+function ExitModal() {
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.7)", display: "flex",
+      alignItems: "center", justifyContent: "center", zIndex: 9999
+    }}>
+      <div style={{
+        backgroundColor: "#222", padding: 20, borderRadius: 10,
+        boxShadow: "0 0 10px #000", color: "white", minWidth: 300
+      }}>
+        <h3>Save and Exit?</h3>
+        <p>Your progress will be saved.</p>
+        <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
+          <button
+            onClick={handleExitConfirm}
+            style={{ flex: 1, padding: "8px 12px", borderRadius: 6, backgroundColor: "#0a0", border: "none", color: "white" }}
+          >
+            Yes
+          </button>
+          <button
+            onClick={handleExitCancel}
+            style={{ flex: 1, padding: "8px 12px", borderRadius: 6, backgroundColor: "#900", border: "none", color: "white" }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+  function handleExit() {
+    setShowExitModal(true);
   }
 
   const currentSprites = spriteMap[selectedCharacter] || spriteMap.char1;
@@ -176,6 +237,7 @@ export default function ScrollableMap() {
 
   return (
     <>
+      {showExitModal && <ExitModal />}
       {showFloorMenu && (
         <FloorMenu
           onSelect={(floor) => {
@@ -197,13 +259,16 @@ export default function ScrollableMap() {
       )}
 
       <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 30, marginTop: 20 }}>
-        <div style={{ width: 200, backgroundColor: "#333", borderRadius: 10, padding: 15, color: "white", fontFamily: "monospace", fontSize: 16, userSelect: "none", height: VIEWPORT_HEIGHT, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-          <div>Note: Press M for change floor || Press B for Inventory</div><br />
+        <div style={{ width: 200, backgroundColor: "#333", borderRadius: 10, padding: 15, color: "white", fontFamily: "monospace", fontSize: 16, userSelect: "none", height: VIEWPORT_HEIGHT, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
+          <div>Note: Press M for Floor Menu | B for Inventory</div>
           <div>Meal: {stats.meal}</div>
           <div>Sleep: {stats.sleep}</div>
           <div>Happiness: {stats.happiness}</div>
           <div>Cleanliness: {stats.cleanliness}</div>
           <div>Money: ${stats.money}</div>
+          <button onClick={handleSave} style={{ marginTop: 10, padding: "6px 12px", fontSize: 14, borderRadius: 6, backgroundColor: "#444", color: "#fff", border: "none" }}>Save Now</button>
+          <button onClick={handleExit} style={{ marginTop: 6, padding: "6px 12px", fontSize: 14, borderRadius: 6, backgroundColor: "#800", color: "#fff", border: "none" }}>Exit to Main Menu</button>
+          {syncMessage && <div style={{ marginTop: 6, color: "#0f0", fontSize: 14 }}>{syncMessage}</div>}
         </div>
 
         <div ref={containerRef} style={{ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT, overflow: "scroll", border: "2px solid black", position: "relative", backgroundColor: "#222", userSelect: "none", scrollbarWidth: "none", msOverflowStyle: "none" }} className="hide-scrollbar">

@@ -1,3 +1,4 @@
+//for map 1
 export const actionZones = [
   {
     id: "house",

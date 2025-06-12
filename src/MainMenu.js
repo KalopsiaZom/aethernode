@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CharacterSelection from "./CharacterSelection";
 import "./MainMenu.css";
 import bg1 from "./img/bg1.jpg";
 import bg2 from "./img/bg2.jpg";
@@ -60,6 +61,7 @@ export default function MainMenu() {
   const [dirIndex, setDirIndex] = useState(0);
   const [activeScreen, setActiveScreen] = useState("menu");
   const [fadeOverlayOpacity, setFadeOverlayOpacity] = useState(0);
+  const [step, setStep] = useState("menu"); // "menu" | "char-select"
 
   const navigate = useNavigate();
 
@@ -79,9 +81,11 @@ export default function MainMenu() {
     return () => clearInterval(interval);
   }, []);
 
-  // Individual button handlers
   const handleNewGame = () => {
-    // Navigate to /new-game route or do something else
+    setStep("char-select");
+  };
+
+  const handleCharacterSelected = () => {
     navigate("/floor1");
   };
 
@@ -105,7 +109,6 @@ export default function MainMenu() {
     setActiveScreen("Exit Game");
   };
 
-  // Map menu options to their handlers
   const handlers = {
     "New Game": handleNewGame,
     "Continue Game": handleContinueGame,
@@ -144,20 +147,29 @@ export default function MainMenu() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Background container: z-0 */}
+      {/* Background Layer */}
       <div className="absolute inset-0 z-0">
         <img
           src={images[bgIndex]}
           alt="background"
-          className={`w-full h-full object-cover animate-background ${
-            directions[dirIndex]
-          }`}
+          className={`w-full h-full object-cover animate-background ${directions[dirIndex]}`}
         />
         <div className="fade-overlay" style={{ opacity: fadeOverlayOpacity }} />
       </div>
 
-      {/* UI content: z-20 so it’s above fade overlay */}
-      {activeScreen === "menu" ? <Menu /> : <Screen />}
+      {/* UI Layer */}
+      {step === "char-select" ? (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black bg-opacity-80">
+          <CharacterSelection
+            onBack={() => setStep("menu")}
+            onSelect={handleCharacterSelected}
+          />
+        </div>
+      ) : activeScreen === "menu" ? (
+        <Menu />
+      ) : (
+        <Screen />
+      )}
     </div>
   );
 }

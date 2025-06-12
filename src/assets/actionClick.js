@@ -1,3 +1,4 @@
+//for all map 
 const ACTION_EFFECTS = {
   eat: {
     stats: { meal: +20, happiness: +5, money: -10 },

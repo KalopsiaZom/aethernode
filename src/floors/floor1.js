@@ -5,6 +5,21 @@ import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
 import Inventory from "../Inventory";
 
+import char1_idle from "../assets/sprite/char1/idle.gif";
+import char1_up from "../assets/sprite/char1/up.gif";
+import char1_down from "../assets/sprite/char1/down.gif";
+import char1_right from "../assets/sprite/char1/right.gif";
+
+import char2_idle from "../assets/sprite/char2/idle.gif";
+import char2_up from "../assets/sprite/char2/up.gif";
+import char2_down from "../assets/sprite/char2/down.gif";
+import char2_right from "../assets/sprite/char2/right.gif";
+
+import char3_idle from "../assets/sprite/char3/idle.gif";
+import char3_up from "../assets/sprite/char3/up.gif";
+import char3_down from "../assets/sprite/char3/down.gif";
+import char3_right from "../assets/sprite/char3/right.gif";
+
 const MAP_WIDTH = 3000;
 const MAP_HEIGHT = 2250;
 const VIEWPORT_WIDTH = 800;
@@ -12,8 +27,7 @@ const VIEWPORT_HEIGHT = 600;
 const PLAYER_SIZE = 40;
 const MOVE_SPEED = 3;
 
-const SPAWN_POINT = { x: 1600, y: 1500 }; // spawn
-
+const SPAWN_POINT = { x: 1600, y: 1500 };
 
 const walls = [
   { x: 400, y: 300, width: 200, height: 40 },
@@ -32,22 +46,36 @@ function isColliding(rect1, rect2) {
 
 export default function ScrollableMap() {
   const containerRef = useRef(null);
-  const { stats, updateStat, useItem, dropItem } = useGame();
+  const { stats, updateStat, useItem, dropItem, selectedCharacter } = useGame();
 
-  /*const [playerPos, setPlayerPos] = useState({
-    x: MAP_WIDTH / 2 - PLAYER_SIZE / 2,
-    y: MAP_HEIGHT / 2 - PLAYER_SIZE / 2,
-  });*/
-  const [playerPos, setPlayerPos] = useState({
-    x: SPAWN_POINT.x,
-    y: SPAWN_POINT.y,
-  });
+  const spriteMap = {
+    char1: {
+      idle: char1_idle,
+      up: char1_up,
+      down: char1_down,
+      right: char1_right,
+    },
+    char2: {
+      idle: char2_idle,
+      up: char2_up,
+      down: char2_down,
+      right: char2_right,
+    },
+    char3: {
+      idle: char3_idle,
+      up: char3_up,
+      down: char3_down,
+      right: char3_right,
+    },
+  };
 
+  const [playerPos, setPlayerPos] = useState({ x: SPAWN_POINT.x, y: SPAWN_POINT.y });
   const [hoveredAction, setHoveredAction] = useState(null);
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [currentMap, setCurrentMap] = useState("/maps/map1.png");
+  const [direction, setDirection] = useState("idle");
 
   const keysPressed = useRef({});
 
@@ -56,19 +84,26 @@ export default function ScrollableMap() {
       setPlayerPos((pos) => {
         let newX = pos.x;
         let newY = pos.y;
+        let newDirection = "idle";
 
         if (keysPressed.current["w"] || keysPressed.current["arrowup"]) {
           newY -= MOVE_SPEED;
-        }
-        if (keysPressed.current["a"] || keysPressed.current["arrowleft"]) {
-          newX -= MOVE_SPEED;
+          newDirection = "up";
         }
         if (keysPressed.current["s"] || keysPressed.current["arrowdown"]) {
           newY += MOVE_SPEED;
+          newDirection = "down";
         }
         if (keysPressed.current["d"] || keysPressed.current["arrowright"]) {
           newX += MOVE_SPEED;
+          newDirection = "right";
         }
+        if (keysPressed.current["a"] || keysPressed.current["arrowleft"]) {
+          newX -= MOVE_SPEED;
+          newDirection = "right";
+        }
+
+        setDirection(newDirection);
 
         newX = Math.max(0, Math.min(newX, MAP_WIDTH - PLAYER_SIZE));
         newY = Math.max(0, Math.min(newY, MAP_HEIGHT - PLAYER_SIZE));
@@ -102,21 +137,17 @@ export default function ScrollableMap() {
   useEffect(() => {
     function onKeyDown(e) {
       keysPressed.current[e.key.toLowerCase()] = true;
-      if (e.key.toLowerCase() === "m") {
-        setShowFloorMenu((prev) => !prev);
-      }
-      if (e.key.toLowerCase() === "b") {
-        setShowInventory((prev) => !prev);
-      }
+      if (e.key.toLowerCase() === "m") setShowFloorMenu((prev) => !prev);
+      if (e.key.toLowerCase() === "b") setShowInventory((prev) => !prev);
       e.preventDefault();
     }
     function onKeyUp(e) {
       keysPressed.current[e.key.toLowerCase()] = false;
+      if (!Object.values(keysPressed.current).includes(true)) setDirection("idle");
       e.preventDefault();
     }
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
@@ -126,23 +157,22 @@ export default function ScrollableMap() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     let scrollLeft = playerPos.x + PLAYER_SIZE / 2 - VIEWPORT_WIDTH / 2;
     let scrollTop = playerPos.y + PLAYER_SIZE / 2 - VIEWPORT_HEIGHT / 2;
-
     scrollLeft = Math.max(0, Math.min(scrollLeft, MAP_WIDTH - VIEWPORT_WIDTH));
     scrollTop = Math.max(0, Math.min(scrollTop, MAP_HEIGHT - VIEWPORT_HEIGHT));
-
     container.scrollLeft = scrollLeft;
     container.scrollTop = scrollTop;
   }, [playerPos]);
 
   function handleActionClick(actionId) {
     const newStats = getUpdatedStats(actionId, stats);
-    Object.entries(newStats).forEach(([key, value]) => {
-      updateStat(key, value);
-    });
+    Object.entries(newStats).forEach(([key, value]) => updateStat(key, value));
   }
+
+  const currentSprites = spriteMap[selectedCharacter] || spriteMap.char1;
+  const playerImage = currentSprites[direction] || currentSprites.idle;
+  const isLeft = (keysPressed.current["a"] || keysPressed.current["arrowleft"]) && !keysPressed.current["d"];
 
   return (
     <>
@@ -166,37 +196,9 @@ export default function ScrollableMap() {
         />
       )}
 
-
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          gap: 30,
-          marginTop: 20,
-        }}
-      >
-        {/* Stats on left */}
-        <div
-          style={{
-            width: 200,
-            backgroundColor: "#333",
-            borderRadius: 10,
-            padding: 15,
-            color: "white",
-            fontFamily: "monospace",
-            fontSize: 16,
-            userSelect: "none",
-            height: VIEWPORT_HEIGHT,
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <div>Note: Press M for change floor || Press B for Inventory</div>
-          <br></br>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: 30, marginTop: 20 }}>
+        <div style={{ width: 200, backgroundColor: "#333", borderRadius: 10, padding: 15, color: "white", fontFamily: "monospace", fontSize: 16, userSelect: "none", height: VIEWPORT_HEIGHT, boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div>Note: Press M for change floor || Press B for Inventory</div><br />
           <div>Meal: {stats.meal}</div>
           <div>Sleep: {stats.sleep}</div>
           <div>Happiness: {stats.happiness}</div>
@@ -204,139 +206,31 @@ export default function ScrollableMap() {
           <div>Money: ${stats.money}</div>
         </div>
 
-        {/* Game in center */}
-        <div
-          ref={containerRef}
-          style={{
-            width: VIEWPORT_WIDTH,
-            height: VIEWPORT_HEIGHT,
-            overflow: "scroll",
-            border: "2px solid black",
-            position: "relative",
-            backgroundColor: "#222",
-            userSelect: "none",
-            scrollbarWidth: "none", // Firefox
-            msOverflowStyle: "none", // IE 10+
-          }}
-          className="hide-scrollbar"
-        >
-          <div
-            style={{
-              width: MAP_WIDTH,
-              height: MAP_HEIGHT,
-              backgroundImage: `url('${currentMap}')`,
-              backgroundSize: "cover",
-              position: "relative",
-            }}
-          >
+        <div ref={containerRef} style={{ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT, overflow: "scroll", border: "2px solid black", position: "relative", backgroundColor: "#222", userSelect: "none", scrollbarWidth: "none", msOverflowStyle: "none" }} className="hide-scrollbar">
+          <div style={{ width: MAP_WIDTH, height: MAP_HEIGHT, backgroundImage: `url('${currentMap}')`, backgroundSize: "cover", position: "relative" }}>
             {walls.map((wall, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: wall.x,
-                  top: wall.y,
-                  width: wall.width,
-                  height: wall.height,
-                  backgroundColor: "rgba(0,0,0,0.6)",
-                  border: "2px solid #900",
-                  boxShadow: "0 0 10px #900",
-                  pointerEvents: "none",
-                }}
-              />
+              <div key={i} style={{ position: "absolute", left: wall.x, top: wall.y, width: wall.width, height: wall.height, backgroundColor: "rgba(0,0,0,0.6)", border: "2px solid #900", boxShadow: "0 0 10px #900", pointerEvents: "none" }} />
             ))}
 
             {actionZones.map((zone) => (
-              <div
-                key={zone.id}
-                style={{
-                  position: "absolute",
-                  left: zone.x,
-                  top: zone.y,
-                  width: zone.width,
-                  height: zone.height,
-                  backgroundColor: zone.color,
-                  border: `3px dashed ${zone.borderColor}`,
-                  pointerEvents: "none",
-                  borderRadius: 8,
-                  boxShadow: `0 0 15px ${zone.borderColor}`,
-                }}
-              />
+              <div key={zone.id} style={{ position: "absolute", left: zone.x, top: zone.y, width: zone.width, height: zone.height, backgroundColor: zone.color, border: `3px dashed ${zone.borderColor}` , pointerEvents: "none", borderRadius: 8, boxShadow: `0 0 15px ${zone.borderColor}` }} />
             ))}
 
-            <div
-              style={{
-                position: "absolute",
-                width: PLAYER_SIZE,
-                height: PLAYER_SIZE,
-                backgroundColor: "red",
-                borderRadius: 8,
-                left: playerPos.x,
-                top: playerPos.y,
-                boxShadow: "0 0 10px red",
-              }}
-            />
+            <img src={playerImage} alt="Player" style={{ position: "absolute", width: PLAYER_SIZE, height: PLAYER_SIZE, left: playerPos.x, top: playerPos.y, transform: isLeft ? "scaleX(-1)" : "scaleX(1)", imageRendering: "pixelated" }} />
           </div>
         </div>
 
-        {/* Actions on right */}
-        <div
-          style={{
-            width: 220,
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-            marginTop: 10,
-          }}
-        >
-          {currentZone &&
-            currentZone.actions.map(({ id, label, info }) => (
-              <div key={id} style={{ textAlign: "center" }}>
-                <button
-                  onClick={() => handleActionClick(id)}
-                  onMouseEnter={() => setHoveredAction(id)}
-                  onMouseLeave={() => setHoveredAction(null)}
-                  style={{
-                    padding: "10px 20px",
-                    fontSize: 16,
-                    cursor: "pointer",
-                    borderRadius: 8,
-                    border: "none",
-                    boxShadow: hoveredAction === id ? "0 0 8px #0f0" : "none",
-                    backgroundColor: hoveredAction === id ? "#0a0" : "#090",
-                    color: "white",
-                    userSelect: "none",
-                    width: "100%",
-                  }}
-                >
-                  {label}
-                </button>
-                {hoveredAction === id && (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      color: "white",
-                      backgroundColor: "rgba(0,0,0,0.7)",
-                      borderRadius: 8,
-                      padding: "5px 10px",
-                      maxWidth: 220,
-                      fontSize: 14,
-                    }}
-                  >
-                    {info}
-                  </div>
-                )}
-              </div>
-            ))}
+        <div style={{ width: 220, display: "flex", flexDirection: "column", gap: "20px", marginTop: 10 }}>
+          {currentZone && currentZone.actions.map(({ id, label, info }) => (
+            <div key={id} style={{ textAlign: "center" }}>
+              <button onClick={() => handleActionClick(id)} onMouseEnter={() => setHoveredAction(id)} onMouseLeave={() => setHoveredAction(null)} style={{ padding: "10px 20px", fontSize: 16, cursor: "pointer", borderRadius: 8, border: "none", boxShadow: hoveredAction === id ? "0 0 8px #0f0" : "none", backgroundColor: hoveredAction === id ? "#0a0" : "#090", color: "white", userSelect: "none", width: "100%" }}>{label}</button>
+              {hoveredAction === id && <div style={{ marginTop: 8, color: "white", backgroundColor: "rgba(0,0,0,0.7)", borderRadius: 8, padding: "5px 10px", maxWidth: 220, fontSize: 14 }}>{info}</div>}
+            </div>
+          ))}
         </div>
       </div>
 
-      <style>{`
-        /* Hide scrollbars for Webkit browsers */
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
     </>
   );
 }

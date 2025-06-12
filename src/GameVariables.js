@@ -3,6 +3,7 @@ import { getUpdatedStats } from "./assets/actionClick";
 
 const GameVariables = createContext();
 
+
 export function GameProvider({ children }) {
   const [stats, setStats] = useState({
     meal: 100,
@@ -79,9 +80,11 @@ export function GameProvider({ children }) {
     setStats(updatedStats);
   };
 
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
+
   return (
     <GameVariables.Provider
-      value={{ stats, updateStat, addItem, handleAction, handleUseItem, handleDropItem }}
+      value={{ stats, updateStat, addItem, handleAction, handleUseItem, handleDropItem, selectedCharacter, setSelectedCharacter }}
     >
       {children}
     </GameVariables.Provider>

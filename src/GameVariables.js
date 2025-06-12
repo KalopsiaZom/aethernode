@@ -1,14 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { getUpdatedStats } from "./assets/actionClick";
-import { auth, db } from "./firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
 
 const GameVariables = createContext();
 
 export function GameProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Added loading state
   const [stats, setStats] = useState({
     meal: 100,
     sleep: 100,
@@ -19,30 +14,6 @@ export function GameProvider({ children }) {
   });
 
   const [selectedCharacter, setSelectedCharacter] = useState(null);
-
-  // Load save data 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        const ref = doc(db, "saves", firebaseUser.uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          setStats(snap.data());
-        }
-      }
-      setLoading(false);
-    });
-    return unsub;
-  }, []);
-
-  // Save to Firestore 
-  useEffect(() => {
-    if (user) {
-      const ref = doc(db, "saves", user.uid);
-      setDoc(ref, stats);
-    }
-  }, [stats, user]);
 
   const handleAction = (actionId) => {
     const updated = getUpdatedStats(actionId, stats);
@@ -87,7 +58,6 @@ export function GameProvider({ children }) {
       .filter((i) => i.count > 0);
 
     setStats(updatedStats);
-    saveProgressToFirebase(); // ✅ Save immediately
   };
 
   const handleDropItem = (itemName) => {
@@ -96,19 +66,6 @@ export function GameProvider({ children }) {
       .map((i) => i.name === itemName ? { ...i, count: i.count - 1 } : i)
       .filter((i) => i.count > 0);
     setStats(updatedStats);
-    saveProgressToFirebase(); // ✅ Save immediately
-  };
-
-  const saveProgressToFirebase = async (playerPos = null) => {
-    if (user) {
-      const ref = doc(db, "saves", user.uid);
-      const payload = { ...stats };
-      if (playerPos) {
-        payload.playerX = playerPos.x;
-        payload.playerY = playerPos.y;
-      }
-      await setDoc(ref, payload);
-    }
   };
 
   return (
@@ -123,11 +80,6 @@ export function GameProvider({ children }) {
         handleDropItem,
         selectedCharacter,
         setSelectedCharacter,
-        user,
-        setUser,
-        firebaseUser: user,
-        saveProgressToFirebase,
-        loading, // ✅ Expose loading to others
       }}
     >
       {children}

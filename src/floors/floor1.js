@@ -49,7 +49,7 @@ function isColliding(rect1, rect2) {
 
 export default function ScrollableMap() {
   const MS_PER_TICK = 1000; 
-  const GAME_SECONDS_PER_TICK = 5;
+  const GAME_SECONDS_PER_TICK = 250;
   const { playerName } = useGame();
   const [gameSeconds, setGameSeconds] = useState(0);
   const [day, setDay] = useState(1);
@@ -173,7 +173,9 @@ export default function ScrollableMap() {
     container.scrollTop = Math.max(0, Math.min(scrollTop, MAP_HEIGHT - VIEWPORT_HEIGHT));
   }, [playerPos]);
 
-  useEffect(() => { //Stat decreases
+  useEffect(() => {
+    if (isGameOver) return; // Stop everything when game over
+
     const interval = setInterval(() => {
       setGameSeconds((prev) => {
         const next = prev + GAME_SECONDS_PER_TICK;
@@ -183,7 +185,7 @@ export default function ScrollableMap() {
         return next;
       });
 
-      // stats
+      // ✅ Only update stats if still alive
       updateStat("meal", Math.max(0, stats.meal - 1));
       updateStat("sleep", Math.max(0, stats.sleep - 1));
       updateStat("happiness", Math.max(0, stats.happiness - 1));
@@ -191,7 +193,8 @@ export default function ScrollableMap() {
     }, MS_PER_TICK);
 
     return () => clearInterval(interval);
-  }, [stats, day]);
+  }, [stats, day, isGameOver]);
+
 
   useEffect(() => {
     if (!isGameOver && (
@@ -216,6 +219,18 @@ function handleActionClick(actionId) {
     //setTimeout(() => setChatMessage(""), 10000); if i want it to be gone i guess
   }
 }
+
+const getGreeting = (gameSeconds) => {
+  const hour = Math.floor((gameSeconds % 86400) / 3600); // in-game hour
+
+  if (hour >= 18) return "Good Night";
+  if (hour >= 16) return "Good Evening";
+  if (hour >= 12) return "Good Afternoon";
+  if (hour >= 6) return "Good Morning";
+  if (hour >= 0) return "Good Night";
+  return;
+};
+
 
 
   const currentSprites = spriteMap[selectedCharacter] || spriteMap.char1;
@@ -242,7 +257,7 @@ function handleActionClick(actionId) {
       letterSpacing: 0.5,
     }}>
       <span style={{ fontWeight: "bold", color: "#0f0" }}>
-        Good Morning, {playerName}!
+        {getGreeting(gameSeconds)}, {playerName}!
       </span>{" "}
       | <span style={{ color: "#0ff" }}>Day {day}</span> |{" "}
       <span style={{ color: "#fff" }}>

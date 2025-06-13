@@ -8,15 +8,15 @@ export default function InventoryUI() {
 
 
   const itemImages = {
-    "Sandwich": require("./img/bg1.jpg"),
-    "Book": require("./img/bg2.jpg"),
-    "Protein Shake": require("./img/bg3.jpg"),
+    "Firewood": require("./img/bg1.jpg"),
+    "Berries": require("./img/bg2.jpg"),
+    "Fish": require("./img/bg3.jpg"),
   };
 
     const itemDescriptions = {
-    "Sandwich": "wow sandwich giv meal 20 points.",
-    "Book": "smart",
-    "Protein Shake": "meal & happi",
+    "Firewood": "A nice chopped firewood. (Sellable item)",
+    "Berries": "Reading essays. (+20 meal, +10 happiness)",
+    "Fish": "Sadly you can't eat this since it's raw. (Sellable item)",
     };
 
 

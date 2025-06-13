@@ -1,11 +1,11 @@
-//for map 1
 export const actionZones = [
   {
+    //map 1
     id: "house",
-    x: 1500,
-    y: 800,
-    width: 300,
-    height: 300,
+    x: 1550,
+    y: 1480,
+    width: 100,
+    height: 100,
     color: "rgba(0,128,255,0.3)",
     borderColor: "#0080ff",
     actions: [
@@ -15,31 +15,43 @@ export const actionZones = [
     ],
   },
   {
-    id: "park",
-    x: 600,
-    y: 1600,
-    width: 350,
-    height: 250,
+    id: "forest",
+    x: 900,
+    y: 900,
+    width: 450,
+    height: 400,
     color: "rgba(0,200,100,0.3)",
     borderColor: "#00cc55",
     actions: [
-      { id: "run", label: "Run", info: "Jog around the park to stay fit." },
-      { id: "picnic", label: "Picnic", info: "Enjoy a relaxing picnic with friends." },
-      { id: "read", label: "Read", info: "Read a book under the trees." },
+      { id: "gatherWood", label: "Gather Wood", info: "Chop down some woods." },
+      { id: "forageBerries", label: "Get Berries", info: "Pick up some berries." },
+      { id: "meditate", label: "Meditate", info: "Meditate under bunch of trees." },
     ],
   },
   {
-    id: "gym",
-    x: 2300,
-    y: 400,
-    width: 280,
-    height: 300,
+    id: "lake",
+    x: 2100,
+    y: 1400,
+    width: 50,
+    height: 400,
     color: "rgba(255,0,0,0.3)",
     borderColor: "#cc0000",
     actions: [
-      { id: "lift", label: "Lift", info: "Strength training for muscle growth." },
-      { id: "cardio", label: "Cardio", info: "Boost endurance with cardio exercises." },
-      { id: "stretch", label: "Stretch", info: "Improve flexibility and prevent injuries." },
+      { id: "fish", label: "Fishing", info: "Fish some fishes in the lake." },
+      { id: "washClothes", label: "Wash your clothes", info: "Wash your clothes at the lake to make it cleaner." },
+      { id: "swim", label: "Swimming", info: "Going for a swim." },
+    ],
+  },
+  {
+    id: "market",
+    x: 900,
+    y: 1900,
+    width: 320,
+    height: 100,
+    color: "rgba(255,215,0,0.3)",
+    borderColor: "#ffd700",
+    actions: [
+      { id: "sell", label: "Open Market", info: "Buy and sell your items here." }
     ],
   },
 ];

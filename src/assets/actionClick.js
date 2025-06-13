@@ -1,52 +1,49 @@
-// actionclick.js
-
 const ACTION_EFFECTS = {
+  //house
   eat: {
-    stats: { meal: +20, happiness: +5, money: -10 },
-    message: "Eating... +20 meal, +5 happiness, -10 money",
+    stats: { meal: +20, happiness: +5, money: -15 },
+    message: "Eating... +20 meal, +5 happiness, -15 money",
   },
   sleep: {
-    stats: { sleep: +25, cleanliness: -5 },
-    message: "Sleeping... +25 sleep, -5 cleanliness",
+    stats: { sleep: +50, cleanliness: -5 },
+    message: "Sleeping... +50 sleep, -5 cleanliness",
   },
   play: {
-    stats: { happiness: +20, sleep: -10 },
-    message: "Playing... +20 happiness, -10 sleep",
+    stats: { happiness: +25, sleep: -10 },
+    message: "Playing... +25 happiness, -10 sleep",
   },
-  run: {
-    stats: { happiness: +10, meal: -15, cleanliness: -10 },
-    message: "Running... +10 happiness, -15 meal, -10 cleanliness",
+  //forest
+  gatherWood: {
+    stats: { happiness: +5, meal: -5, cleanliness: -15 },
+    item: "Firewood",
+    message: "Gathering wood in the forest... +5 happiness, -5 meal, -15 cleanliness (got Firewood)",
   },
-  picnic: {
-    stats: { happiness: +15, meal: +10 },
-    item: "Sandwich",
-    message: "Picnic time! +15 happiness, +10 meal (got Sandwich)",
+
+  forageBerries: {
+    stats: { meal: +20, happiness: +10 },
+    item: "Berries",
+    message: "Foraging for berries... +20 meal, +10 happiness (got Berries)",
   },
-  read: {
-    stats: { happiness: +8, sleep: +5 },
-    item: "Book",
-    message: "Reading... +8 happiness, +5 sleep (got Book)",
+
+  meditate: {
+    stats: { happiness: +25, sleep: +10 },
+    message: "Meditating under a tree... +25 happiness, +10 sleep",
   },
-  lift: {
-    stats: { happiness: +12, meal: -20, cleanliness: -15 },
-    item: "Protein Shake",
-    message: "Lifting weights... +12 happiness, -20 meal, -15 cleanliness (got Protein Shake)",
+  //lake
+  fish: {
+    stats: { meal: +25, happiness: +10, cleanliness: -10 },
+    item: "Fish",
+    message: "Fishing by the river... +25 meal, +10 happiness, -10 cleanliness (got Fish)",
   },
-  cardio: {
-    stats: { happiness: +15, meal: -25 },
-    message: "Cardio workout... +15 happiness, -25 meal",
+
+  washClothes: {
+    stats: { cleanliness: +30, happiness: +5, meal: -10 },
+    message: "Washing clothes at the river... +30 cleanliness, +5 happiness, -10 meal",
   },
-  stretch: {
-    stats: { happiness: +10, cleanliness: -5 },
-    message: "Stretching... +10 happiness, -5 cleanliness",
-  },
-  clean: {
-    stats: { cleanliness: +25, happiness: -5 },
-    message: "Cleaning... +25 cleanliness, -5 happiness",
-  },
-  shower: {
-    stats: { cleanliness: +40, meal: -5 },
-    message: "Showering... +40 cleanliness, -5 meal",
+
+  swim: {
+    stats: { happiness: +20, cleanliness: +10, sleep: +5 },
+    message: "Swimming in the lake... +20 happiness, +10 cleanliness, +5 sleep",
   },
 };
 

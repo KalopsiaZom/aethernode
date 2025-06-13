@@ -5,6 +5,7 @@ import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
 import Inventory from "../Inventory";
 import { useNavigate } from "react-router-dom";
+import Market from "../assets/Market";
 
 // Character animations
 import char1_idle from "../assets/sprite/char1/idle.gif";
@@ -33,9 +34,9 @@ const MOVE_SPEED = 9;
 const SPAWN_POINT = { x: 1600, y: 1500 };
 
 const walls = [
-  { x: 400, y: 300, width: 200, height: 40 },
-  { x: 1000, y: 1200, width: 300, height: 50 },
-  { x: 2200, y: 1800, width: 100, height: 300 },
+  { x: 735, y: 500, width: 50, height: 5000 },
+  { x: 500, y: 2160, width: 5000, height: 50 },
+  { x: 500, y: 640, width: 5000, height: 50 },
 ];
 
 function isColliding(rect1, rect2) {
@@ -48,13 +49,14 @@ function isColliding(rect1, rect2) {
 }
 
 export default function ScrollableMap() {
-  const MS_PER_TICK = 1000; 
+  const MS_PER_TICK = 3000; 
   const GAME_SECONDS_PER_TICK = 250;
   const { playerName } = useGame();
   const [gameSeconds, setGameSeconds] = useState(0);
   const [day, setDay] = useState(1);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const [showMarket, setShowMarket] = useState(false);
 
   const navigate = useNavigate();
   const containerRef = useRef(null);
@@ -177,6 +179,21 @@ export default function ScrollableMap() {
     if (isGameOver) return; // Stop everything when game over
 
     const interval = setInterval(() => {
+      /*setGameSeconds((prev) => {
+        const next = prev + GAME_SECONDS_PER_TICK;
+        if (Math.floor(next / 86400) + 1 > day) {
+          setDay((d) => d + 1);
+        }
+        return next;
+      });*/
+
+      updateStat("meal", Math.max(0, stats.meal - 1));
+      updateStat("sleep", Math.max(0, stats.sleep - 1));
+      updateStat("happiness", Math.max(0, stats.happiness - 1));
+      updateStat("cleanliness", Math.max(0, stats.cleanliness - 1));
+    }, MS_PER_TICK);
+
+    const interval2 = setInterval(() => {
       setGameSeconds((prev) => {
         const next = prev + GAME_SECONDS_PER_TICK;
         if (Math.floor(next / 86400) + 1 > day) {
@@ -184,15 +201,12 @@ export default function ScrollableMap() {
         }
         return next;
       });
+    }, 1000)
 
-      // ✅ Only update stats if still alive
-      updateStat("meal", Math.max(0, stats.meal - 1));
-      updateStat("sleep", Math.max(0, stats.sleep - 1));
-      updateStat("happiness", Math.max(0, stats.happiness - 1));
-      updateStat("cleanliness", Math.max(0, stats.cleanliness - 1));
-    }, MS_PER_TICK);
-
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearInterval(interval2);
+    };
   }, [stats, day, isGameOver]);
 
 
@@ -209,6 +223,12 @@ export default function ScrollableMap() {
 function handleActionClick(actionId) {
   const result = getUpdatedStats(actionId, stats);
   const newStats = result.stats;
+
+  if (actionId === "sell") {
+    setShowMarket(true); // open market
+    return;
+  }
+
 
   Object.entries(newStats).forEach(([key, value]) => {
     if (key !== "items") updateStat(key, value);
@@ -305,6 +325,32 @@ const getGreeting = (gameSeconds) => {
       <p>Money: ${stats.money}</p>
     </div>
 
+    <div style={{
+      marginTop: "30px",
+      fontSize: "18px",
+      lineHeight: "1.8",
+      color: "#0f0",
+      backgroundColor: "#111",
+      padding: "16px",
+      borderRadius: "12px",
+      maxWidth: 420
+    }}>
+    {(() => {
+      const averageStat = (stats.meal + stats.sleep + stats.happiness + stats.cleanliness) / 4;
+      const itemCount = stats.items.reduce((sum, item) => sum + item.count, 0);
+      const score = Math.floor(averageStat) + itemCount + (day * 1000);
+
+      return (
+        <>
+          <p><strong>Life Satisfaction Score:</strong> {score}</p>
+          <p style={{ fontSize: "14px", color: "#aaa", marginTop: "8px" }}>
+            = Average Stats ({Math.floor(averageStat)}) + Item Count ({itemCount}) + Days × 1000 ({day * 1000})
+          </p>
+        </>
+      );
+    })()}
+  </div>
+
     <div style={{ marginTop: "30px", display: "flex", gap: "20px" }}>
       <button
         onClick={() => {
@@ -361,6 +407,8 @@ const getGreeting = (gameSeconds) => {
           onClose={() => setShowInventory(false)}
         />
       )}
+
+      {showMarket && <Market onClose={() => setShowMarket(false)} />}
 
       {showExitModal && (
         <div style={{

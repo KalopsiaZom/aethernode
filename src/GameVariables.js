@@ -52,9 +52,9 @@ export function GameProvider({ children }) {
 
   const handleUseItem = (itemName) => {
     const itemEffects = {
-      "Sandwich": { meal: +20 },
-      "Book": { happiness: +10 },
-      "Protein Shake": { meal: +10, happiness: +5 },
+      "Firewood": { meal: +0 },
+      "Fish": { meal: -5 },
+      "Berries": { meal: +20, happiness: +10 },
     };
 
     const updatedStats = { ...stats };

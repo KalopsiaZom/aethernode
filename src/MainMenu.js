@@ -5,6 +5,7 @@ import "./MainMenu.css";
 import bg1 from "./img/bg1.jpg";
 import bg2 from "./img/bg2.jpg";
 import bg3 from "./img/bg3.jpg";
+import { useGame } from "./GameVariables";
 
 const images = [bg1, bg2, bg3];
 const directions = ["scroll-top-right", "scroll-bottom-left"];
@@ -19,7 +20,10 @@ const screenContents = {
   Credits: (
     <>
       <h2 className="text-2xl font-bold">Credits</h2>
-      <p>Developed by Evan.</p>
+      <p>Developed by: </p>
+      <p>- Yustinus Evan Kusuma</p>
+      <p>- Bryant Marchianno Jefferson</p>
+      <p>- Ivan Michael Lawrence</p>
     </>
   ),
   "Exit Game": (
@@ -38,6 +42,9 @@ export default function MainMenu() {
   const [step, setStep] = useState("menu");
   const [goToFloor1, setGoToFloor1] = useState(false);
 
+  const { resetGame } = useGame();
+
+
   useEffect(() => {
     const cycleTime = 6000;
     const fadeDuration = 1000;
@@ -55,6 +62,7 @@ export default function MainMenu() {
   }, []);
 
   const handlePlay = () => {
+    resetGame();
     setStep("char-select");
   };
 

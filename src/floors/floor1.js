@@ -48,6 +48,14 @@ function isColliding(rect1, rect2) {
 }
 
 export default function ScrollableMap() {
+  const MS_PER_TICK = 1000; 
+  const GAME_SECONDS_PER_TICK = 5;
+  const { playerName } = useGame();
+  const [gameSeconds, setGameSeconds] = useState(0);
+  const [day, setDay] = useState(1);
+  const [isGameOver, setIsGameOver] = useState(false);
+
+
   const navigate = useNavigate();
   const containerRef = useRef(null);
   const {
@@ -56,6 +64,7 @@ export default function ScrollableMap() {
     useItem,
     dropItem,
     selectedCharacter,
+    resetGame,
   } = useGame();
 
   const spriteMap = {
@@ -164,6 +173,36 @@ export default function ScrollableMap() {
     container.scrollTop = Math.max(0, Math.min(scrollTop, MAP_HEIGHT - VIEWPORT_HEIGHT));
   }, [playerPos]);
 
+  useEffect(() => { //Stat decreases
+    const interval = setInterval(() => {
+      setGameSeconds((prev) => {
+        const next = prev + GAME_SECONDS_PER_TICK;
+        if (Math.floor(next / 86400) + 1 > day) {
+          setDay((d) => d + 1);
+        }
+        return next;
+      });
+
+      // stats
+      updateStat("meal", Math.max(0, stats.meal - 1));
+      updateStat("sleep", Math.max(0, stats.sleep - 1));
+      updateStat("happiness", Math.max(0, stats.happiness - 1));
+      updateStat("cleanliness", Math.max(0, stats.cleanliness - 1));
+    }, MS_PER_TICK);
+
+    return () => clearInterval(interval);
+  }, [stats, day]);
+
+  useEffect(() => {
+    if (!isGameOver && (
+      stats.meal <= 0 || stats.sleep <= 0 || stats.happiness <= 0 || stats.cleanliness <= 0
+    )) {
+      setIsGameOver(true);
+    }
+  }, [stats, isGameOver]);
+
+
+
 function handleActionClick(actionId) {
   const result = getUpdatedStats(actionId, stats);
   const newStats = result.stats;
@@ -174,7 +213,7 @@ function handleActionClick(actionId) {
 
   if (result.chat) {
     setChatMessage(result.chat);
-    //setTimeout(() => setChatMessage(""), 10000); if i want it be gone i guess
+    //setTimeout(() => setChatMessage(""), 10000); if i want it to be gone i guess
   }
 }
 
@@ -183,9 +222,107 @@ function handleActionClick(actionId) {
   const playerImage = currentSprites[direction] || currentSprites.idle;
   const isLeft = (keysPressed.current["a"] || keysPressed.current["arrowleft"]) && !keysPressed.current["d"];
 
-  return (
+  return ( //UI
     <>
       <audio src={backgroundMusic} autoPlay loop volume={0.3} />
+
+  {playerName && !isGameOver && (
+    <div style={{
+      width: "100%",
+      textAlign: "center",
+      fontFamily: "monospace",
+      fontSize: "18px",
+      color: "#0ff",
+      padding: "12px 20px",
+      background: "#111",
+      borderBottom: "2px solid #0ff",
+      boxShadow: "0 2px 8px rgba(0, 255, 255, 0.2)",
+      zIndex: 5,
+      position: "relative",
+      letterSpacing: 0.5,
+    }}>
+      <span style={{ fontWeight: "bold", color: "#0f0" }}>
+        Good Morning, {playerName}!
+      </span>{" "}
+      | <span style={{ color: "#0ff" }}>Day {day}</span> |{" "}
+      <span style={{ color: "#fff" }}>
+        {String(Math.floor((gameSeconds % 86400) / 3600)).padStart(2, "0")}:
+        {String(Math.floor((gameSeconds % 3600) / 60)).padStart(2, "0")}
+      </span>
+    </div>
+  )}
+
+
+{isGameOver && (
+  <div style={{
+    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "#0a0a0a", color: "white", zIndex: 9999,
+    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    fontFamily: "monospace", padding: "30px", textAlign: "center"
+  }}>
+    <div style={{ fontSize: "56px", fontWeight: "bold", color: "red", marginBottom: "10px", textShadow: "2px 2px #000" }}>
+      GAME OVER
+    </div>
+    <p style={{ fontSize: "20px", marginBottom: "8px" }}>You lose!</p>
+    <p style={{
+      fontSize: "18px",
+      backgroundColor: "#222",
+      padding: "8px 16px",
+      borderRadius: "8px",
+      color: "#9f9",
+      marginBottom: "12px"
+    }}>
+      Cause: {
+        stats.cleanliness <= 0 ? "Bad Hygiene" :
+        stats.meal <= 0 ? "Starved" :
+        stats.sleep <= 0 ? "Not enough sleep" :
+        "Depression"
+      }
+    </p>
+    <p style={{ fontSize: "18px" }}>
+      Survived for <strong>{day} day(s)</strong>, Nice try <strong>{playerName}</strong>!
+    </p>
+    <div style={{ marginTop: "16px", fontSize: "16px", lineHeight: "1.6" }}>
+      <p>Meal: {stats.meal}%</p>
+      <p>Sleep: {stats.sleep}%</p>
+      <p>Happiness: {stats.happiness}%</p>
+      <p>Cleanliness: {stats.cleanliness}%</p>
+      <p>Money: ${stats.money}</p>
+    </div>
+
+    <div style={{ marginTop: "30px", display: "flex", gap: "20px" }}>
+      <button
+        onClick={() => {
+          resetGame();
+          setIsGameOver(false);
+          setDay(1);
+          setGameSeconds(0);
+          setPlayerPos({ x: SPAWN_POINT.x, y: SPAWN_POINT.y });
+        }}
+
+        style={{
+          backgroundColor: "#0a0", color: "white",
+          border: "none", padding: "10px 24px", fontSize: "18px",
+          borderRadius: "8px", cursor: "pointer", boxShadow: "0 0 10px #0f0"
+        }}
+      >
+        Play Again
+      </button>
+      <button
+        onClick={() => navigate("/")}
+        style={{
+          backgroundColor: "#555", color: "white",
+          border: "none", padding: "10px 24px", fontSize: "18px",
+          borderRadius: "8px", cursor: "pointer"
+        }}
+      >
+        Main Menu
+      </button>
+    </div>
+  </div>
+)}
+
+
 
       {showFloorMenu && (
         <FloorMenu
@@ -323,7 +460,7 @@ function handleActionClick(actionId) {
             </div>
           </div>
 
-          {/* Chat box BELOW game screen */}
+          {/* Chat box game screen */}
           <div style={{
             marginTop: 12,
             backgroundColor: "#111",

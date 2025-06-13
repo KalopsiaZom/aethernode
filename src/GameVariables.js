@@ -13,7 +13,20 @@ export function GameProvider({ children }) {
     items: [],
   });
 
+  const resetGame = () => {
+    setStats({
+      meal: 100,
+      sleep: 100,
+      happiness: 100,
+      cleanliness: 100,
+      money: 100,
+      items: [],
+    });
+  };
+
+
   const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [playerName, setPlayerName] = useState("");
 
   const handleAction = (actionId) => {
     const updated = getUpdatedStats(actionId, stats);
@@ -80,6 +93,9 @@ export function GameProvider({ children }) {
         handleDropItem,
         selectedCharacter,
         setSelectedCharacter,
+        playerName,
+        setPlayerName,
+        resetGame,
       }}
     >
       {children}

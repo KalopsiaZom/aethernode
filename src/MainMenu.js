@@ -24,6 +24,7 @@ const screenContents = {
       <p>- Yustinus Evan Kusuma</p>
       <p>- Bryant Marchianno Jefferson</p>
       <p>- Ivan Michael Lawrence</p>
+      <p>- Christoper Raymond</p>
     </>
   ),
   "Exit Game": (

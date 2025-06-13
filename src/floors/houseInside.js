@@ -366,6 +366,7 @@ const getGreeting = (gameSeconds) => {
           setIsGameOver(false);
           setDay(1);
           setGameSeconds(0);
+          navigate("/floor1");
           setPlayerPos({ x: SPAWN_POINT.x, y: SPAWN_POINT.y });
         }}
 

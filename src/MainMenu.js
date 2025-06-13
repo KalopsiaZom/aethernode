@@ -6,6 +6,8 @@ import bg1 from "./img/bg1.jpg";
 import bg2 from "./img/bg2.jpg";
 import bg3 from "./img/bg3.jpg";
 import { useGame } from "./GameVariables";
+import menuMusic from "./assets/sounds/mainmenu-music.mp3";
+
 
 const images = [bg1, bg2, bg3];
 const directions = ["scroll-top-right", "scroll-bottom-left"];
@@ -53,7 +55,7 @@ export default function MainMenu() {
   const [goToFloor1, setGoToFloor1] = useState(false);
 
   const { resetGame } = useGame();
-
+  const [bgm, setBgm] = useState(null);
 
   useEffect(() => {
     const cycleTime = 6000;
@@ -70,6 +72,23 @@ export default function MainMenu() {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const audio = new Audio(menuMusic);
+    audio.loop = true;
+    audio.volume = 0.5;
+    audio.play().catch((e) => {
+      console.log("Autoplay blocked. User must interact first.", e);
+    });
+
+    setBgm(audio);
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+
 
   const handlePlay = () => {
     resetGame();

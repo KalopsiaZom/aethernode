@@ -14,7 +14,7 @@ const screenContents = {
   Options: (
     <>
       <h2 className="text-2xl font-bold">Options</h2>
-      <p>Adjust your preferences and settings.</p>
+      <p>Not available in this current moment.</p>
     </>
   ),
   Credits: (
@@ -30,6 +30,15 @@ const screenContents = {
     <>
       <h2 className="text-2xl font-bold">Exit Game</h2>
       <p>Thanks for playing!</p>
+      <button
+        onClick={() => {
+          window.close(); // works only if tab was opened by script
+          window.location.href = "about:blank"; // fallback for most browsers
+        }}
+        className="mt-4 bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded"
+      >
+        Close Game
+      </button>
     </>
   ),
 };

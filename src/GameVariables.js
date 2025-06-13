@@ -55,6 +55,16 @@ export function GameProvider({ children }) {
       "Firewood": { meal: +0 },
       "Fish": { meal: -5 },
       "Berries": { meal: +20, happiness: +10 },
+      "Ancient Relic": { happiness: +40 },
+      "Healing Herb": { meal: +0 },
+      "River Fish": { meal: +5 },
+      "Supply Box": { happiness: +30 },
+      "Mushrooms": { meal: +10 },
+      "Rabbit Meat": { meal: +3 },
+      "Soap": { cleanliness: +20 },
+      "Sandwich": { meal: +15 },
+      "Book": { happiness: +25 },
+      "Coffee": { sleep: +30 },
     };
 
     const updatedStats = { ...stats };

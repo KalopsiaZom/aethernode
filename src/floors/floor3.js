@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { actionZones2 } from "../assets/actionZones2";
+import { actionZones3 } from "../assets/actionZones3";
 import { getUpdatedStats } from "../assets/actionClick";
 import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
@@ -25,13 +25,13 @@ import char3_right from "../assets/sprite/char3/right.gif";
 
 import backgroundMusic from "../assets/sounds/background-music.mp3";
 
-const MAP_WIDTH = 2100;
-const MAP_HEIGHT = 1400;
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 700;
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 600;
 const PLAYER_SIZE = 40;
 const MOVE_SPEED = 9;
-const SPAWN_POINT = { x: 600, y: 720 };
+const SPAWN_POINT = { x: 500, y: 10 };
 
 function isColliding(rect1, rect2) {
   return !(
@@ -77,7 +77,7 @@ export default function ScrollableMap() {
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
-  const [currentMap, setCurrentMap] = useState("/maps/map2.png");
+  const [currentMap, setCurrentMap] = useState("/maps/map3.png");
   const [direction, setDirection] = useState("idle");
   const [showExitModal, setShowExitModal] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
@@ -115,7 +115,7 @@ export default function ScrollableMap() {
 
         const newPlayerRect = { x: newX, y: newY, width: PLAYER_SIZE, height: PLAYER_SIZE };
 
-        const foundZone = actionZones2.find((zone) => isColliding(newPlayerRect, zone)) || null;
+        const foundZone = actionZones3.find((zone) => isColliding(newPlayerRect, zone)) || null;
         setCurrentZone(foundZone);
 
         return { x: newX, y: newY };
@@ -207,12 +207,6 @@ export default function ScrollableMap() {
 function handleActionClick(actionId) {
   const result = getUpdatedStats(actionId, stats);
   const newStats = result.stats;
-
-  if (actionId === "enter-house") {
-    navigate("/insidehouse"); 
-    return;
-  }
-
 
 
   Object.entries(newStats).forEach(([key, value]) => {
@@ -458,7 +452,7 @@ const getGreeting = (gameSeconds) => {
               }}
             >
 
-              {actionZones2.map((zone) => (
+              {actionZones3.map((zone) => (
                 <div
                   key={zone.id}
                   style={{

@@ -20,7 +20,7 @@ export default function CharacterSelection({ onBack, onSelect }) {
       setPlayerName(nameInput.trim());
       onSelect(); // lanjut ke floor1
     } else {
-      alert("Masukkan nama terlebih dahulu.");
+      alert("Enter your name first!");
     }
   };
 

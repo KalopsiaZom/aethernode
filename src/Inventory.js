@@ -8,15 +8,35 @@ export default function InventoryUI() {
 
 
   const itemImages = {
-    "Firewood": require("./img/bg1.jpg"),
-    "Berries": require("./img/bg2.jpg"),
-    "Fish": require("./img/bg3.jpg"),
+    "Firewood": require("./img/firewood.webp"),
+    "Berries": require("./img/berries.avif"),
+    "Fish": require("./img/fish.jpg"),
+    "Ancient Relic": require("./img/ancientrelic.webp"),
+    "Healing Herb": require("./img/healingherb.jpg"),
+    "River Fish": require("./img/riverfish.webp"),
+    "Supply Box": require("./img/supplybox.jpg"),
+    "Mushrooms": require("./img/mushroom.webp"),
+    "Rabbit Meat": require("./img/rabbitmeat.jpg"),
+    "Soap": require("./img/soap.jpg"),
+    "Sandwich": require("./img/sandwich.jpg"),
+    "Book": require("./img/book.jpg"),
+    "Coffee": require("./img/coffee.jpg"),
   };
 
     const itemDescriptions = {
     "Firewood": "A nice chopped firewood. (Sellable item)",
-    "Berries": "Reading essays. (+20 meal, +10 happiness)",
+    "Berries": "Mmm berries. (+20 meal, +10 happiness)",
     "Fish": "Sadly you can't eat this since it's raw. (Sellable item)",
+    "Ancient Relic": "Mysterious relic... (Sellable item)",
+    "Healing Herb": "Can this herb actually heals. (Sellable item)",
+    "River Fish": "At least it's better than regular fish. (+5 meal)",
+    "Supply Box": "Supply box of awesomeness or something like that. (+30 Happiness)",
+    "Mushrooms": "Is it poisoned?. (+10 meal)",
+    "Rabbit Meat": "A rabbit died for this. (+3 meal)",
+    "Soap": "Clean yourself. (+20 cleanliness)",
+    "Sandwich": "Yum sandwich. (+15 meal)",
+    "Book": "Reading essays. (+25 happiness)",
+    "Coffee": "What better way to give your body more caffeine. (+30 sleep)",
     };
 
 

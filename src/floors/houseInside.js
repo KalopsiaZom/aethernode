@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { actionZones2 } from "../assets/actionZones2";
+import { actionZones2house } from "../assets/actionZones2house";
 import { getUpdatedStats } from "../assets/actionClick";
 import { useGame } from "../GameVariables";
 import FloorMenu from "../assets/FloorMenu";
@@ -25,13 +25,26 @@ import char3_right from "../assets/sprite/char3/right.gif";
 
 import backgroundMusic from "../assets/sounds/background-music.mp3";
 
-const MAP_WIDTH = 2100;
-const MAP_HEIGHT = 1400;
+const MAP_WIDTH = 3000;
+const MAP_HEIGHT = 2250;
 const VIEWPORT_WIDTH = 800;
 const VIEWPORT_HEIGHT = 600;
 const PLAYER_SIZE = 40;
 const MOVE_SPEED = 9;
-const SPAWN_POINT = { x: 600, y: 720 };
+const SPAWN_POINT = { x: 1470, y: 1500 };
+
+const walls = [
+  { x: 1100, y: 500, width: 50, height: 5000 },
+  { x: 1830, y: 500, width: 50, height: 5000 },
+  { x: 1143, y: 1500, width: 300, height: 50 },
+  { x: 1543, y: 1500, width: 300, height: 50 },
+  { x: 1500, y: 840, width: 400, height: 50 },
+  { x: 1100, y: 950, width: 400, height: 50 },
+  { x: 1500, y: 890, width: 50, height: 80 },
+  { x: 1143, y: 1737, width: 800, height: 50 },
+  { x: 1380, y: 1500, width: 50, height: 300 },
+  { x: 1540, y: 1500, width: 50, height: 300 },
+];
 
 function isColliding(rect1, rect2) {
   return !(
@@ -77,7 +90,7 @@ export default function ScrollableMap() {
   const [currentZone, setCurrentZone] = useState(null);
   const [showFloorMenu, setShowFloorMenu] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
-  const [currentMap, setCurrentMap] = useState("/maps/map2.png");
+  const [currentMap, setCurrentMap] = useState("/maps/map2house.png");
   const [direction, setDirection] = useState("idle");
   const [showExitModal, setShowExitModal] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
@@ -115,7 +128,17 @@ export default function ScrollableMap() {
 
         const newPlayerRect = { x: newX, y: newY, width: PLAYER_SIZE, height: PLAYER_SIZE };
 
-        const foundZone = actionZones2.find((zone) => isColliding(newPlayerRect, zone)) || null;
+        for (const wall of walls) {
+          if (isColliding(newPlayerRect, wall)) {
+            const tryX = { x: newX, y: pos.y, width: PLAYER_SIZE, height: PLAYER_SIZE };
+            if (!isColliding(tryX, wall)) return { x: newX, y: pos.y };
+            const tryY = { x: pos.x, y: newY, width: PLAYER_SIZE, height: PLAYER_SIZE };
+            if (!isColliding(tryY, wall)) return { x: pos.x, y: newY };
+            return pos;
+          }
+        }
+
+        const foundZone = actionZones2house.find((zone) => isColliding(newPlayerRect, zone)) || null;
         setCurrentZone(foundZone);
 
         return { x: newX, y: newY };
@@ -208,8 +231,8 @@ function handleActionClick(actionId) {
   const result = getUpdatedStats(actionId, stats);
   const newStats = result.stats;
 
-  if (actionId === "enter-house") {
-    navigate("/insidehouse"); 
+  if (actionId === "leave-house") {
+    navigate("/floor2"); 
     return;
   }
 
@@ -457,8 +480,25 @@ const getGreeting = (gameSeconds) => {
                 position: "relative",
               }}
             >
+              {walls.map((wall, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: wall.x,
+                    top: wall.y,
+                    width: wall.width,
+                    height: wall.height,
+                    backgroundColor: "rgba(0,0,0,0.6)",
+                    border: "2px solid #900",
+                    boxShadow: "0 0 10px #900",
+                    pointerEvents: "none",
+                    opacity: "0%",
+                  }}
+                />
+              ))}
 
-              {actionZones2.map((zone) => (
+              {actionZones2house.map((zone) => (
                 <div
                   key={zone.id}
                   style={{

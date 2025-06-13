@@ -2,15 +2,26 @@ import React, { useState } from "react";
 import { useGame } from "../GameVariables";
 
 const itemValues = {
-  Sandwich: 5,
-  Book: 8,
-  "Protein Shake": 15,
+    Firewood: 20,
+    Fish: 10,
+    Berries: 5,
+    "Ancient Relic": 50,
+    "Healing Herb": 30,
+    "River Fish": 15,
+    "Supply Box": 40,
+    Mushrooms: 5,
+    "Rabbit Meat": 15,
+    Soap: 15,
+    Sandwich: 5,
+    Book: 20,
+    Coffee: 5,
 };
 
 const shopStock = [
   { name: "Sandwich", price: 25 },
-  { name: "Book", price: 15 },
-  { name: "Protein Shake", price: 40 },
+  { name: "Book", price: 40 },
+  { name: "Coffee", price: 50 },
+  { name: "Soap", price: 35 },
 ];
 
 export default function Market({ onClose }) {
